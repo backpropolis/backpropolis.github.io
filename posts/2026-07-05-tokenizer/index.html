@@ -321,7 +321,7 @@
 <li><strong>BERT-family encoder</strong> → WordPiece, 30k vocab, <code>##</code> continuation markers</li>
 <li><strong>Quick experiments / learning</strong> → BPE from scratch, then compare against <code>tiktoken</code></li>
 </ul>
-<p><strong>Note:</strong> All implementations in this post are available as a runnable notebook at <a href="https://github.com/backpropolis/llm_from_scratch/tree/main/src/tokenizers">github.com/backpropolis/llm_from_scratch</a>.</p>
+<p><strong>Note:</strong> All implementations in this post are available as a runnable notebook at <a href="https://github.com/backpropolis/nlp_from_scratch/tree/main/src/tokenizers">github.com/backpropolis/nlp_from_scratch</a>.</p>
 <h2 id="why-tokenize-at-all">Why Tokenize at All?<a hidden class="anchor" aria-hidden="true" href="#why-tokenize-at-all">#</a></h2>
 <p>An embedding table is a lookup: row <code>i</code> is the vector for token ID <code>i</code>. To use it, text must first become a sequence of integers in <code>[0, vocab_size)</code>. Tokenization is that mapping, and its inverse turns generated IDs back into characters.</p>
 <figure>

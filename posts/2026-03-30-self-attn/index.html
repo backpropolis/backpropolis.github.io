@@ -334,7 +334,7 @@
 </figure>
 <p>By the end of this post you will have built, from scratch in PyTorch, working implementations of Self-Attention, Multi-Head Attention, Causal Self-Attention, and Cross-Attention, the four building blocks that power every transformer.</p>
 <p>No history lesson. No survey of 200 papers. Just the mechanics, the shapes, and the code. If you know what a tensor is and can read a <code>nn.Module</code>, you&rsquo;re ready.</p>
-<p>All code in this post is available as runnable Jupyter notebooks at <a href="https://github.com/backpropolis/llm_from_scratch/tree/main/attention">github.com/backpropolis/llm_from_scratch</a>.</p>
+<p>All code in this post is available as runnable Jupyter notebooks at <a href="https://github.com/backpropolis/nlp_from_scratch/tree/main/attention">github.com/backpropolis/nlp_from_scratch</a>.</p>
 <p><em>Note: We&rsquo;ll thread a single running example through the entire post: the sentence &ldquo;The CEO announced record earnings on Friday&rdquo;, embedded into <code>d_model = 64</code>. Watch how each mechanism transforms these vectors step by step.</em></p>
 <h1 id="self-attention">Self-Attention<a hidden class="anchor" aria-hidden="true" href="#self-attention">#</a></h1>
 <p>Right now, each of our 7 tokens [&ldquo;The&rdquo;, &ldquo;CEO&rdquo;, &ldquo;announced&rdquo;, &hellip; &ldquo;Friday&rdquo;] is an isolated 64-dimensional vector. &ldquo;announced&rdquo; has no idea that &ldquo;CEO&rdquo; is its subject or that &ldquo;Friday&rdquo; is when it happened. How does a model let every token decide which other tokens matter, without any hardwired positional rules?</p>
@@ -388,7 +388,7 @@
         out = torch.bmm(weights, V)          # (batch, seq_len, d_k)
         return out, weights</code></pre>
 <p>Simple, but expensive. Every token attends to every other token.</p>
-<p>&#128211; <a href="https://github.com/backpropolis/llm_from_scratch/blob/main/attention/1.%20self_attention.ipynb">Run the full self-attention notebook</a> &mdash; includes bidirectional and causal modes with shape checks and attention heatmaps.</p>
+<p>&#128211; <a href="https://github.com/backpropolis/nlp_from_scratch/blob/main/attention/1.%20self_attention.ipynb">Run the full self-attention notebook</a> &mdash; includes bidirectional and causal modes with shape checks and attention heatmaps.</p>
 <h2 id="computational-cost">Computational Cost<a hidden class="anchor" aria-hidden="true" href="#computational-cost">#</a></h2>
 <p>Complexity: <code>O(n&sup2; &times; d)</code> time and memory. A 4,096-token sequence &rarr; ~16.8M entries per head per layer. At 128k tokens &rarr; ~16.4B. This quadratic scaling motivates every efficiency variant (such as sparse attention, Flash Attention, etc). The chart below shows how the attention matrix grows with sequence length:</p>
 <figure>
@@ -431,7 +431,7 @@ Output = Concat(head_1, ..., head_h) @ W_O</code></pre>
             weights.append(h_w)
         out = self.W_o(torch.cat(outs, dim=-1))   # (batch, seq_len, d_model)
         return out, torch.stack(weights, dim=1)    # weights: (batch, n_heads, seq_len, seq_len)</code></pre>
-<p>&#128211; <a href="https://github.com/backpropolis/llm_from_scratch/blob/main/attention/2.%20mutihead_attention.ipynb">Run the multi-head attention notebook</a> &mdash; includes per-head visualizations and a detailed single-head vs. multi-head comparison table.</p>
+<p>&#128211; <a href="https://github.com/backpropolis/nlp_from_scratch/blob/main/attention/2.%20mutihead_attention.ipynb">Run the multi-head attention notebook</a> &mdash; includes per-head visualizations and a detailed single-head vs. multi-head comparison table.</p>
 <h2 id="key-takeaways-1">Key Takeaways<a hidden class="anchor" aria-hidden="true" href="#key-takeaways-1">#</a></h2>
 <p><strong>h</strong> parallel heads in <code>d_model / h</code> subspaces, combined via learned <code>W_O</code>, with the same total compute as single-head. MHA is the original design (GPT-2, OLMo); newer models use GQA (Llama 3) or MLA (DeepSeek V3) to reduce KV cache cost.</p>
 <p>MHA gives every head full access to all positions, but for autoregressive generation, &ldquo;Friday&rdquo; shouldn&rsquo;t peek at tokens that come after it. One additive mask solves this.</p>
@@ -487,7 +487,7 @@ M[i][j] = -inf    if j &gt; i</code></pre>
         mask     = torch.triu(torch.ones(seq_len, seq_len, dtype=torch.bool), diagonal=1)
         weights  = F.softmax(scores.masked_fill(mask, float("-inf")), dim=-1)
         return torch.bmm(weights, V)</code></pre>
-<p>&#128211; Causal attention is covered in the <a href="https://github.com/backpropolis/llm_from_scratch/blob/main/attention/1.%20self_attention.ipynb">self-attention notebook</a> &mdash; the unified <code>SelfAttention</code> class handles both bidirectional and causal modes via an optional mask parameter.</p>
+<p>&#128211; Causal attention is covered in the <a href="https://github.com/backpropolis/nlp_from_scratch/blob/main/attention/1.%20self_attention.ipynb">self-attention notebook</a> &mdash; the unified <code>SelfAttention</code> class handles both bidirectional and causal modes via an optional mask parameter.</p>
 <h2 id="key-takeaways-2">Key Takeaways<a hidden class="anchor" aria-hidden="true" href="#key-takeaways-2">#</a></h2>
 <p>Lower-triangular mask enables autoregressive generation, KV caching, and single-pass training, the foundation of every decoder-only model (GPT, LLaMA, Mistral). Bidirectional models (BERT) see everything but can&rsquo;t generate; encoder-decoder models (T5) combine both via cross-attention.</p>
 <p>Causal attention lets a sequence attend to itself with temporal constraints. But what about attending to a completely different sequence?</p>
@@ -552,7 +552,7 @@ V = X_KV @ W_V       # from encoder: [batch, seq_len_kv, d_model] -&gt; [batch, 
         weights = F.softmax(scores, dim=-1)  # (batch, seq_len_q, seq_len_kv)
         out = torch.bmm(weights, V)          # (batch, seq_len_q, d_k)
         return out, weights</code></pre>
-<p>&#128211; <a href="https://github.com/backpropolis/llm_from_scratch/blob/main/attention/3.%20cross_attention.ipynb">Run the cross-attention notebook</a> &mdash; includes padding mask handling and a translation alignment visualization.</p>
+<p>&#128211; <a href="https://github.com/backpropolis/nlp_from_scratch/blob/main/attention/3.%20cross_attention.ipynb">Run the cross-attention notebook</a> &mdash; includes padding mask handling and a translation alignment visualization.</p>
 <h2 id="key-takeaways-3">Key Takeaways<a hidden class="anchor" aria-hidden="true" href="#key-takeaways-3">#</a></h2>
 <p>Same formula as self-attention, but Q from one sequence and K/V from another &rarr; rectangular <code>seq_len_q x seq_len_kv</code> matrix. Bridges encoder-decoder in the original Transformer. Standard for multimodal; replaced by concatenation in text-only LLMs.</p>
 <h1 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h1>

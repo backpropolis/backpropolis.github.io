@@ -310,7 +310,7 @@
 <li><strong>SwiGLU</strong>: Swish + a multiplicative gate, splits the FFN’s hidden layer into two paths, dominant decoder-only LLM default</li>
 <li><strong>ReLU²</strong>: <code>max(0, x)²</code>, a 2021 revival, surfaced again in some 2024-25 architectures</li>
 </ul>
-<p><strong>Note:</strong> All implementations in this post are available as runnable notebooks at <a href="https://github.com/backpropolis/llm_from_scratch/tree/main/src/activations">github.com/backpropolis/llm_from_scratch</a>.</p>
+<p><strong>Note:</strong> All implementations in this post are available as runnable notebooks at <a href="https://github.com/backpropolis/nlp_from_scratch/tree/main/src/activations">github.com/backpropolis/nlp_from_scratch</a>.</p>
 <h2 id="why-a-nonlinearity-at-all">Why a Nonlinearity at All?<a hidden class="anchor" aria-hidden="true" href="#why-a-nonlinearity-at-all">#</a></h2>
 <p>Each FFN block in a transformer is two <code>nn.Linear</code> layers stacked back to back. If the only thing between them is another linear operation, the composition collapses into a single linear map and the model can’t represent anything a single linear layer couldn’t.</p>
 <p>

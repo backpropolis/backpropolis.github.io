@@ -323,7 +323,7 @@
 <li><strong>Weight loading</strong>: mapping a published <code>state_dict</code> onto our modules, and the conventions that silently break it</li>
 <li><strong>Generation</strong>: prefill and decode, and why the KV cache changes the shape of the computation</li>
 </ul>
-<p><strong>Note:</strong> Everything below is in one runnable notebook: <a href="https://colab.research.google.com/github/backpropolis/llm_from_scratch/blob/main/src/architecture/9.%20architecture.ipynb">open it in Colab</a> to build the model, load the real weights, and generate text without installing anything, or read the source at <a href="https://github.com/backpropolis/llm_from_scratch/tree/main/src/architecture">github.com/backpropolis/llm_from_scratch</a>.</p>
+<p><strong>Note:</strong> Everything below is in one runnable notebook: <a href="https://colab.research.google.com/github/backpropolis/nlp_from_scratch/blob/main/src/architecture/9.%20architecture.ipynb">open it in Colab</a> to build the model, load the real weights, and generate text without installing anything, or read the source at <a href="https://github.com/backpropolis/nlp_from_scratch/tree/main/src/architecture">github.com/backpropolis/nlp_from_scratch</a>.</p>
 <h2 id="the-residual-stream">The Residual Stream<a hidden class="anchor" aria-hidden="true" href="#the-residual-stream">#</a></h2>
 <p>A transformer is not a pipeline that transforms its input step by step. It is a single running sum, called the residual stream, that every sublayer reads from and adds back into. Understanding this is what makes the rest of the architecture obvious.</p>
 <p>

@@ -309,7 +309,7 @@
 <li><strong>QK-Norm</strong>: normalize only <code>Q</code> and <code>K</code>; targets attention-logit drift rather than residual-stream drift</li>
 <li><strong>DyT / Derf</strong>: normalization-free research line; replaces statistics with a learned point-wise S-curve</li>
 </ul>
-<p><strong>Note:</strong> The repo for this series is available at <a href="https://github.com/backpropolis/llm_from_scratch">github.com/backpropolis/llm_from_scratch</a>; the snippets below are short PyTorch fragments you can paste into a notebook.</p>
+<p><strong>Note:</strong> The repo for this series is available at <a href="https://github.com/backpropolis/nlp_from_scratch">github.com/backpropolis/nlp_from_scratch</a>; the snippets below are short PyTorch fragments you can paste into a notebook.</p>
 <h2 id="why-normalize-at-all">Why Normalize at All?<a hidden class="anchor" aria-hidden="true" href="#why-normalize-at-all">#</a></h2>
 <p>Stack 32 transformer layers and feed our 7-token sentence through. Each layer adds its sublayer output back into the residual stream, so activation scale can grow additively with depth. By the time &ldquo;Friday&rdquo; reaches the final layer, the model may be operating far from the scale it was initialized for, logits sharpen, residual updates get poorly conditioned, and the optimizer starts fighting activation drift instead of learning token relationships.</p>
 <p>
