@@ -1,5 +1,20 @@
 [
   {
+    "slug": "2026-09-06-boredom",
+    "title": "What Is Your Boredom Threshold?",
+    "date": "2026-09-06",
+    "summary": "Why is it easy to start a new project but hard to see it through? From the empty room experiment to deliberate practice: what boredom really is, why we quit when hitting stone, and how to raise your boredom threshold.",
+    "tags": [
+      "boredom",
+      "psychology",
+      "productivity"
+    ],
+    "readingTime": "9 min",
+    "author": "David Hoang",
+    "cover": "asset/og-cover.jpg",
+    "category": "off-the-grid"
+  },
+  {
     "slug": "2026-08-20-architecture",
     "title": "Architecture: Assembling a Modern Dense LLM",
     "date": "2026-08-20",

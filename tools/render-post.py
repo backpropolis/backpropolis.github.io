@@ -5,24 +5,30 @@ Render a series post (markdown) into a PaperMod-styled page for the blog.
 Reuses an existing published post as the HTML skeleton, so the header, theme
 toggle, sidebar TOC, MathJax, and highlight.js setup stay identical across posts.
 
-Supports: headings with unique anchors, paragraphs, bullet lists, tables,
-fenced code, $$ display math (block and single-line), images with an italic
-caption line (rendered as <figure>), blockquotes, inline code/bold/italic/links.
+Supports: headings with unique anchors, paragraphs, bullet and numbered lists,
+tables, fenced code, $$ display math (block and single-line), images with an
+italic caption line (rendered as <figure>), blockquotes (two trailing spaces =
+line break), inline code/bold/italic/links.
 
-Usage:
+Usage (series post):
   python tools/render-post.py \
       --md "/path/to/post.md" --slug 2026-08-20-architecture \
       --title "Architecture: Assembling a Modern Dense LLM" \
       --date 2026-08-20 --pretty-date "August 20, 2026" \
       --desc "..." --tw-desc "..." --ld-desc "..." --ld-body "..." \
-      --keywords "architecture,transformer" \
+      --keywords "architecture,transformer" --tags "architecture,transformer" \
+      --cover asset/model-architecture.png \
       --prev-slug 2026-07-05-tokenizer --prev-title "Tokenizers: ..."
+
+Standalone / Off the Grid post: omit --prev-slug/--prev-title (no series nav),
+and pass --lang vi for a Vietnamese page.
 """
 
 from __future__ import annotations
 
 import argparse
 import re
+import unicodedata
 import urllib.parse
 from pathlib import Path
 
@@ -40,6 +46,7 @@ SK = {
     "keywords": "tokenizer, bpe, tokenization, subword, deep-learning, long-read",
     "ld_keywords": '    "tokenizer", "bpe", "tokenization", "subword", "deep-learning", "long-read"',
     "hashtags": "hashtags=tokenizer%2cbpe%2ctokenization%2csubword%2cdeep-learning%2clong-read",
+    "cover": "asset/text-to-vectors.png",
 }
 
 
@@ -71,6 +78,9 @@ def resolve_link(url: str) -> str:
 
 # --------------------------------------------------------------------------- inline
 def slugify(text: str) -> str:
+    # Fold accents first so non-English headings keep readable anchors
+    # ("Căn phòng trống" -> "can-phong-trong"); ASCII headings are unchanged.
+    text = unicodedata.normalize("NFKD", text.lower().replace("đ", "d"))
     return "".join(c if (c.isalnum() and ord(c) < 128) else "-" if c in " -" else "" for c in text.lower())
 
 
@@ -226,7 +236,28 @@ def render_markdown(md: str) -> tuple[str, list[tuple[str, str]]]:
             while i < len(lines) and lines[i].lstrip().startswith(">"):
                 buf.append(re.sub(r"^\s*>\s?", "", lines[i]))
                 i += 1
-            html.append("<blockquote><p>" + inline(" ".join(x.strip() for x in buf if x.strip())) + "</p></blockquote>")
+            # A line ending in two spaces is a markdown hard break (quote / translation / attribution).
+            groups, cur = [], []
+            for x in buf:
+                if x.strip():
+                    cur.append(x.strip())
+                if x.endswith("  ") and cur:
+                    groups.append(" ".join(cur))
+                    cur = []
+            if cur:
+                groups.append(" ".join(cur))
+            html.append("<blockquote><p>" + "<br>\n".join(inline(g) for g in groups) + "</p></blockquote>")
+            continue
+
+        # numbered list
+        if re.match(r"^\d+\.\s+", line):
+            items = []
+            while i < len(lines) and re.match(r"^\d+\.\s+", lines[i].rstrip()):
+                items.append(re.sub(r"^\d+\.\s+", "", lines[i].rstrip()))
+                i += 1
+            html.append("<ol>")
+            html += [f"<li>{inline(it)}</li>" for it in items]
+            html.append("</ol>")
             continue
 
         # bullet list
@@ -244,7 +275,7 @@ def render_markdown(md: str) -> tuple[str, list[tuple[str, str]]]:
         buf, i = [line], i + 1
         while i < len(lines):
             nxt = lines[i].rstrip()
-            if not nxt or nxt in ("---", "$$") or re.match(r"^(#{1,6})\s|^```|^!\[|^-\s|^\|", nxt) or nxt.startswith(">"):
+            if not nxt or nxt in ("---", "$$") or re.match(r"^(#{1,6})\s|^```|^!\[|^-\s|^\d+\.\s|^\|", nxt) or nxt.startswith(">"):
                 break
             buf.append(nxt)
             i += 1
@@ -315,12 +346,31 @@ def build(args) -> Path:
         tpl,
         flags=re.S,
     )
-    tpl = re.sub(
-        r'(<a class="prev" href="\.\./\.\./posts/)[^/]+(/">.*?<span>)[^<]*(</span>)',
-        lambda m: m.group(1) + args.prev_slug + m.group(2) + args.prev_title + m.group(3),
-        tpl,
-        flags=re.S,
-    )
+    if args.prev_slug:
+        tpl = re.sub(
+            r'(<a class="prev" href="\.\./\.\./posts/)[^/]+(/">.*?<span>)[^<]*(</span>)',
+            lambda m: m.group(1) + args.prev_slug + m.group(2) + args.prev_title + m.group(3),
+            tpl,
+            flags=re.S,
+        )
+    else:
+        # Standalone post (not part of the series): no previous-post link.
+        tpl = re.sub(r'<nav class="paginav">.*?</nav>\n?', "", tpl, count=1, flags=re.S)
+
+    # Page language; the skeleton is English.
+    if args.lang != "en":
+        tpl = tpl.replace('<html lang="en" dir="auto">', f'<html lang="{args.lang}" dir="auto">', 1)
+        tpl = tpl.replace('hreflang="en"', f'hreflang="{args.lang}"')
+
+    # Social preview image (og:image / twitter:image). Without --cover it would
+    # still point at the skeleton post's image, which does not exist here.
+    skeleton_cover = f'/posts/{args.slug}/{SK["cover"]}"'
+    if args.cover:
+        if not (SITE / "posts" / args.slug / args.cover).exists():
+            print(f"warning: cover {args.cover} not found in posts/{args.slug}/")
+        tpl = tpl.replace(skeleton_cover, f'/posts/{args.slug}/{args.cover}"')
+    elif skeleton_cover in tpl:
+        print(f"warning: no --cover given; og:image still points to {SK['cover']}")
 
     # Tall figures (a full architecture diagram) would otherwise fill several
     # screens at full column width, so cap figure height and centre what is left.
@@ -341,6 +391,13 @@ def build(args) -> Path:
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     for flag in ("md", "slug", "title", "date", "pretty-date", "desc", "tw-desc",
-                 "ld-desc", "ld-body", "keywords", "tags", "prev-slug", "prev-title"):
+                 "ld-desc", "ld-body", "keywords", "tags"):
         p.add_argument("--" + flag, required=True)
-    build(p.parse_args())
+    p.add_argument("--prev-slug", default="", help="previous post in the series; omit for a standalone post")
+    p.add_argument("--prev-title", default="")
+    p.add_argument("--lang", default="en", help="page language, e.g. vi")
+    p.add_argument("--cover", default="", help="social preview image, relative to the post dir (asset/og.jpg)")
+    a = p.parse_args()
+    if bool(a.prev_slug) != bool(a.prev_title):
+        p.error("--prev-slug and --prev-title go together")
+    build(a)

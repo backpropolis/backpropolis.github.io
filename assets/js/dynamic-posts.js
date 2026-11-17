@@ -19,6 +19,22 @@
     "positional-encoding": "Methods that inject token order into the otherwise position-agnostic transformer, from fixed sinusoids to learned and rotary (RoPE) schemes."
   };
 
+  // Posts outside the main ML series carry "category": "off-the-grid" in posts.json.
+  // They are listed on /off-the-grid/ instead of the home and Posts pages.
+  var OFF_GRID = "off-the-grid";
+
+  function isOffGrid(post) {
+    return post.category === OFF_GRID;
+  }
+
+  function mainPosts(posts) {
+    return posts.filter(function (p) { return !isOffGrid(p); });
+  }
+
+  function offGridPosts(posts) {
+    return posts.filter(isOffGrid);
+  }
+
   function getRoot() {
     return window.SITE_ROOT || "./";
   }
@@ -263,6 +279,8 @@
     renderArchive: renderArchive,
     renderTags: renderTags,
     renderSearch: renderSearch,
+    mainPosts: mainPosts,
+    offGridPosts: offGridPosts,
     SITE: SITE
   };
 })();

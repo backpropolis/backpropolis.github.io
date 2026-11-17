@@ -71,6 +71,7 @@
             <li><a href="../archives" title="Archive"><span>Archive</span></a></li>
             <li><a href="../search/" title="Search (Alt &#43; /)" accesskey=/><span>Search</span></a></li>
             <li><a href="../tags/" title="Tags"><span>Tags</span></a></li>
+            <li><a href="../off-the-grid/" title="Off the Grid"><span>Off the Grid</span></a></li>
             
         </ul>
     </nav>
@@ -98,6 +99,6 @@
 
 <script>window.SITE_ROOT = "../";</script>
 <script src="../assets/js/dynamic-posts.js"></script>
-<script>DynamicPosts.fetchPosts(function(posts) { DynamicPosts.renderPostList(document.getElementById("posts-container"), posts); });</script>
+<script>DynamicPosts.fetchPosts(function(posts) { DynamicPosts.renderPostList(document.getElementById("posts-container"), DynamicPosts.mainPosts(posts)); });</script>
 </body>
 </html>
