@@ -65,21 +65,47 @@
 
   // --- Renderers ---
 
+  // Thumbnail = first image of the post (posts.json "cover", relative to the post dir).
+  function injectCoverStyle() {
+    if (document.getElementById("entry-cover-style")) return;
+    var style = document.createElement("style");
+    style.id = "entry-cover-style";
+    style.textContent =
+      ".post-entry.has-thumb{display:flex;gap:var(--gap);align-items:flex-start}" +
+      ".post-entry .entry-thumb{flex:0 0 220px;align-self:center;height:150px;margin:0;padding:8px;" +
+      "background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;" +
+      "display:flex;align-items:center;justify-content:center}" +
+      ".post-entry .entry-thumb img{display:block;width:100%;height:100%;max-height:100%;object-fit:contain;margin:0}" +
+      ".post-entry .entry-body{flex:1;min-width:0}" +
+      "@media (max-width:600px){.post-entry .entry-thumb{flex-basis:120px;align-self:flex-start;" +
+      "height:90px;padding:4px}}";
+    document.head.appendChild(style);
+  }
+
+  function thumbHtml(post) {
+    return '<figure class="entry-thumb"><img loading="lazy" src="' +
+      escapeHtml(postUrl(post.slug) + post.cover) + '" alt=""></figure>';
+  }
+
   function renderPostList(container, posts) {
     container.innerHTML = "";
     if (posts.length === 0) {
       container.innerHTML = "<p>No posts yet.</p>";
       return;
     }
+    injectCoverStyle();
     posts.forEach(function (post) {
       var article = document.createElement("article");
-      article.className = "post-entry";
+      article.className = post.cover ? "post-entry has-thumb" : "post-entry";
       article.innerHTML =
+        (post.cover ? thumbHtml(post) : "") +
+        '<div class="entry-body">' +
         '<header class="entry-header"><h2>' + escapeHtml(post.title) + "</h2></header>" +
         '<section class="entry-content"><p>' + escapeHtml(post.summary) + "...</p></section>" +
         '<footer class="entry-footer">Date: ' + formatDate(post.date) +
         "  |  Estimated Reading Time: " + escapeHtml(post.readingTime) +
         "  |  Author: " + escapeHtml(post.author || SITE.author) + "</footer>" +
+        "</div>" +
         '<a class="entry-link" aria-label="post link to ' + escapeHtml(post.title) +
         '" href="' + postUrl(post.slug) + '"></a>';
       container.appendChild(article);
