@@ -317,7 +317,7 @@
 <p>A neural network is a model that learns from examples. Instead of writing every rule by hand, we give it data, compare its prediction with the correct answer, and let it adjust its internal numbers until the predictions improve.</p>
 <p>The idea is loosely inspired by biological neurons: many small units receive signals, combine them, and pass a result forward. In machine learning, those signals are numbers, and the things being adjusted are weights and biases.</p>
 <p>This post builds that idea from the smallest useful piece: one neuron. Once that one piece is clear, every later section only answers one question: how do we make the same idea handle more inputs, more samples, harder shapes, and actual learning?</p>
-<p>Companion notebook: <a href="../../src/0.neural_net/0.%20neural_network_from_scratch.ipynb"><code>src/0.neural_net/0. neural_network_from_scratch.ipynb</code></a>. The notebook uses pure NumPy, no PyTorch, no autograd.</p>
+<p>Companion notebook: <a href="https://github.com/backpropolis/nlp_from_scratch/blob/main/src/0.neural_net/0.%20neural_network_from_scratch.ipynb"><code>src/0.neural_net/0. neural_network_from_scratch.ipynb</code></a>. The notebook uses pure NumPy, no PyTorch, no autograd.</p>
 <h2 id="one-neuron">One Neuron<a hidden class="anchor" aria-hidden="true" href="#one-neuron">#</a></h2>
 <p>The smallest neural network unit receives inputs, multiplies them by weights, adds a bias, and produces one output. This is the smallest place where the main ingredients appear: input, weight, bias, prediction, and loss.</p>
 <p>With one input, the neuron is just a line:</p>
@@ -978,7 +978,7 @@ loss = data_loss + l1_loss</code></pre>
   <a class="next" href="../../posts/2026-03-30-self-attn/">
     <span class="title"> &raquo;</span>
     <br>
-    <span>Self-Attention and Multi-Head Attention</span>
+    <span>The Mechanics of Attention: Self, Multi-Head, Causal, and Cross</span>
   </a>
 </nav>
 

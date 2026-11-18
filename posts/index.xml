@@ -51,7 +51,7 @@
       <description>Building every major attention mechanism from scratch in PyTorch — GQA, MLA, SWA, NSA, Gated Attention, and Hybrid Attention. Six efficiency variants that solve the bottlenecks of standard attention: KV cache memory, quadratic cost, and training instability at scale.</description>
     </item>
     <item>
-      <title>Self-Attention and Multi-Head Attention</title>
+      <title>The Mechanics of Attention: Self, Multi-Head, Causal, and Cross</title>
       <link>https://backpropolis.github.io/posts/2026-03-30-self-attn/</link>
       <pubDate>Mon, 30 Mar 2026 00:00:00 +0000</pubDate>
       <guid>https://backpropolis.github.io/posts/2026-03-30-self-attn/</guid>

@@ -66,7 +66,10 @@ POST_LINKS = {
 
 
 def resolve_link(url: str) -> str:
-    """Rewrite ../<repo folder>/<file>.md into the published post URL."""
+    """Rewrite ../<repo folder>/<file>.md into the published post URL,
+    and ../../src/... (valid only inside the source repo) into its GitHub URL."""
+    if url.startswith("../../src/"):
+        return "https://github.com/backpropolis/nlp_from_scratch/blob/main/" + url[len("../../"):]
     m = re.match(r"^\.\./([^/]+)/[^/]+\.md$", url)
     if not m:
         return url
